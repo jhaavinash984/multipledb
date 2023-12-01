@@ -30,6 +30,11 @@ public class TestController {
 	
 	@Autowired
 	private KafkaTemplate<String, Payload> kafkaTemplate;
+
+	@GetMapping(value="/test")
+	public String testing(){
+		return "It Is Testing";
+	}
 	
 	@GetMapping(value="/testDeatils")
 	public List<SyncOpptyHeaderModel> getDeatails(){
@@ -49,7 +54,7 @@ public class TestController {
 		System.out.println("Controller enter");
 		List<Payload> syncOpptyHeaderClct = syncOpptyService.fetchSyncOpptyHeader();
 		for(Payload payload : syncOpptyHeaderClct) {
-			kafkaTemplate.send(Constant.topic1,payload);
+		//	kafkaTemplate.send(Constant.topic1,payload);
 			//kafkaTemplate.send(Constant.topic1,1,"syncOpptyDetails",syncOpptyDetails);
 		}
 		System.out.println("Data "+syncOpptyHeaderClct);

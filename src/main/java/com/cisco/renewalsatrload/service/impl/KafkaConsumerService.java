@@ -7,19 +7,19 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import com.cisco.renewalsatrload.constant.Constant;
-import com.cisco.renewalsatrload.entity.primarydb.SyncOpptyDetails;
-import com.cisco.renewalsatrload.entity.secondarydb.SyncOpptyDetails1;
+//import com.cisco.renewalsatrload.entity.primarydb.SyncOpptyDetails;
+//import com.cisco.renewalsatrload.entity.secondarydb.SyncOpptyDetails1;
 import com.cisco.renewalsatrload.model.Payload;
-import com.cisco.renewalsatrload.repository.primarydb.SyncOpptyDetailsRepository;
-import com.cisco.renewalsatrload.repository.secondarydb.SyncOpptyDetailsRepository1;
-import com.google.gson.Gson;
-import org.springframework.kafka.annotation.*;
+//import com.cisco.renewalsatrload.repository.primarydb.SyncOpptyDetailsRepository;
+//import com.cisco.renewalsatrload.repository.secondarydb.SyncOpptyDetailsRepository1;
+//import com.google.gson.Gson;
+//import org.springframework.kafka.annotation.*;
 
 @Component
 public class KafkaConsumerService {
 	
-	@Autowired
-	SyncOpptyDetailsRepository1 syncOpptyDetailsRepo1;
+	/*@Autowired
+	SyncOpptyDetailsRepository1 syncOpptyDetailsRepo1;*/
 	
 	/*@KafkaListener(
 		    groupId = Constant.group1,
@@ -39,10 +39,10 @@ public class KafkaConsumerService {
 	    syncOpptyDetailsRepo1.save(syncOpptyDetails1);
 	    System.out.print("\n");
 	}*/
-	@KafkaListener(topics=Constant.topic1, groupId = Constant.group1,containerFactory = "syncOpptyDetailsKafkaListenerContainerFactory")
+	/*@KafkaListener(topics=Constant.topic1, groupId = Constant.group1,containerFactory = "syncOpptyDetailsKafkaListenerContainerFactory")
 	public void listen(Payload payload) {
 		System.out.println("payload :: "+payload);
 		System.out.println("\n");
-   }
+   }*/
 
 }

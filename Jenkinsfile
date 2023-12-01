@@ -15,7 +15,7 @@ pipeline {
     
     tools {
         maven 'Maven-3.3.1'
-        jdk 'JDK1.8.0'
+        jdk 'JDK17'
     }
     
 
@@ -45,10 +45,10 @@ pipeline {
         stage ('Build') {
             steps {
                 
-				sh "mvn -DskipTests clean package"
+				sh "mvn clean package -Djasypt.encryptor.password=renewalsatrload"
 				
 				// Run the docker build command and tag the image with the git commit ID
-				dockerBuild(tag: "containers.cisco.com/services_wwss_others/sfdcuseraccess_sfdcaccess")
+				dockerBuild(tag: "containers.cisco.com/sales-it/renewals-atr-service")
 				
             }
 
@@ -107,7 +107,7 @@ pipeline {
 					steps {
 
 						// Run your unit tests and prepare SonarQube output
-						sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test"
+						sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test -Djasypt.encryptor.password=renewalsatrload"
 
 						sonarScan('Sonar')
 					}

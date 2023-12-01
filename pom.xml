@@ -91,6 +91,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>renewals-atr-service</finalName>
 	</build>
 
 </project>
