@@ -1,12 +1,12 @@
 package com.cisco.renewalsatrload.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.kafka.annotation.KafkaListener;
+//import org.springframework.kafka.support.KafkaHeaders;
+//import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
-import com.cisco.renewalsatrload.constant.Constant;
+//import com.cisco.renewalsatrload.constant.Constant;
 //import com.cisco.renewalsatrload.entity.primarydb.SyncOpptyDetails;
 //import com.cisco.renewalsatrload.entity.secondarydb.SyncOpptyDetails1;
 import com.cisco.renewalsatrload.model.Payload;

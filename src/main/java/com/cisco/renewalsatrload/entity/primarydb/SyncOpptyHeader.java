@@ -7,16 +7,11 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Data;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import javax.persistence.*;
 
 @Data
 @Entity
@@ -167,6 +162,7 @@ public class SyncOpptyHeader implements Serializable {
 	private List<SyncOpptyDetails> opportunityLineItems;
 	@JsonManagedReference
 	@OneToMany(fetch = FetchType.EAGER,mappedBy="syncOpptyHeader")
+	@Fetch(value = FetchMode.SUBSELECT)
 	private List<SyncOpptyPartners> partnerHeader;
 	
 

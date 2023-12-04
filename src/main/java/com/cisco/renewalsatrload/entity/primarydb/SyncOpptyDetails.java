@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
@@ -11,17 +13,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import javax.persistence.*;
 import lombok.Data;
 
 @Data
@@ -170,6 +162,7 @@ public class SyncOpptyDetails implements Serializable {
 	@Column(name="HEADER_JOB_ID")
 	private String headerJobId;
 	@OneToMany(fetch = FetchType.EAGER,mappedBy="syncOpptyDetails")
+	@Fetch(value = FetchMode.SUBSELECT)
 	@JsonManagedReference
 	@JsonProperty("LineByQuarter")
 	private List<SyncOpptyQuarterlyLines> lineByQuarter;

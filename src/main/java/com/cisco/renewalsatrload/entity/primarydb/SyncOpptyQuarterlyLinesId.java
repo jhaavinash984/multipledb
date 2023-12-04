@@ -1,6 +1,6 @@
 package com.cisco.renewalsatrload.entity.primarydb;
 
-import jakarta.persistence.Embeddable;
+import javax.persistence.*;
 
 @Embeddable
 public class SyncOpptyQuarterlyLinesId {
