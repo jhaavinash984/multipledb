@@ -12,6 +12,7 @@
 	<artifactId>RenewalsATRLoad</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>RenewalsATRLoad</name>
+	<packaging>war</packaging>
 	<description>RenewalsATRLoad</description>
 	<properties>
 		<java.version>11</java.version>
