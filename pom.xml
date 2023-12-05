@@ -16,6 +16,7 @@
 	<description>RenewalsATRLoad</description>
 	<properties>
 		<java.version>11</java.version>
+		<start-class>com.test.jenkin.RenewalsAtrLoadApplication</start-class>
 	</properties>
 	<dependencies>
 		<dependency>

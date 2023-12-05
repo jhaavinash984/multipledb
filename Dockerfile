@@ -1,7 +1,8 @@
 #FROM containers.cisco.com/aws_managed/tomcat-7-jws3.1_custom
 ## Maintainer ##
-FROM registry.access.redhat.com/jboss-webserver-3/webserver31-tomcat7-openshift
+#FROM registry.access.redhat.com/jboss-webserver-3/webserver31-tomcat7-openshift
 #FROM containers.cisco.com/aws_managed/webserver57-openjdk8-tomcat9-openshift-rhel8
+FROM registry.access.redhat.com/jboss-webserver-5/webserver50-tomcat9-openshift
 MAINTAINER Lae2Cae-Operations
 #FROM registry.access.redhat.com/jboss-webserver-5/webserver50-tomcat9-openshift
 USER root
