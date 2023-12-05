@@ -15,7 +15,7 @@ USER root
 #COPY network /usr/lib/oracle/11.2/network
 #ADD AppDServerAgent /opt/AppDServerAgent
 
-COPY remoteuservalve.jar TomEncrypt.jar log4j.properties ${JWS_HOME}/lib/
+#COPY remoteuservalve.jar TomEncrypt.jar log4j.properties ${JWS_HOME}/lib/
 ENV JAVA_OPTS_EXT="-Djboss.server.log.dir=$JWS_HOME/log/\$HOSTNAME -Djava.library.path=/usr/lib/oracle/11.2/client64/lib" \
     OPENSHIFT_LOG_DIR=${JWS_HOME}/logs/\$HOSTNAME \
     OPENSHIFT_HOMEDIR=${JWS_HOME} \
