@@ -6,13 +6,13 @@ FROM registry.access.redhat.com/jboss-webserver-5/webserver50-tomcat9-openshift
 MAINTAINER Lae2Cae-Operations
 #FROM registry.access.redhat.com/jboss-webserver-5/webserver50-tomcat9-openshift
 USER root
-ADD *.rpm /tmp/
+#ADD *.rpm /tmp/
 #COPY redhat_base.repo  /etc/yum.repos.d/
-RUN  yum install -y /tmp/*.rpm && \
-     rm -f /tmp/*.rpm && \
-     echo /usr/lib/oracle/11.2/client64/lib > /etc/ld.so.conf.d/oracle-instantclient11.2.conf && \
-     ldconfig
-COPY network /usr/lib/oracle/11.2/network
+#RUN  yum install -y /tmp/*.rpm && \
+    # rm -f /tmp/*.rpm && \
+     #echo /usr/lib/oracle/11.2/client64/lib > /etc/ld.so.conf.d/oracle-instantclient11.2.conf && \
+     #ldconfig
+#COPY network /usr/lib/oracle/11.2/network
 #ADD AppDServerAgent /opt/AppDServerAgent
 
 COPY remoteuservalve.jar TomEncrypt.jar log4j.properties ${JWS_HOME}/lib/
@@ -24,9 +24,9 @@ ENV JAVA_OPTS_EXT="-Djboss.server.log.dir=$JWS_HOME/log/\$HOSTNAME -Djava.librar
     TMP_DIR=/tmp \
     OPENSHIFT_JBOSSEWS_LOG_DIR=${JWS_HOME}/logs/\$HOSTNAME \
     OPENSHIFT_DATA_DIR=${JWS_HOME}/logs/\$HOSTNAME \
-    PATH=$PATH:/usr/lib/oracle/11.2/client64/bin \
-    LD_LIBRARY_PATH=/usr/lib/oracle/11.2/client64/lib:$LD_LIBRARY_PATH \
-    TNS_ADMIN=/usr/lib/oracle/11.2/network/admin \
+    #PATH=$PATH:/usr/lib/oracle/11.2/client64/bin \
+    #LD_LIBRARY_PATH=/usr/lib/oracle/11.2/client64/lib:$LD_LIBRARY_PATH \
+    #TNS_ADMIN=/usr/lib/oracle/11.2/network/admin \
     PATH=$PATH:${JWS_HOME}
 
 COPY setenv.sh  ${JWS_HOME}/bin
