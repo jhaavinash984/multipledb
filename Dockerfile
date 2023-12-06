@@ -38,7 +38,7 @@ RUN mkdir ${HOME}/{data,lae-home} && \
     mkdir ${JWS_HOME}/infrascripts && \
     mkdir -p ${JWS_HOME}/app-deployments/current/dependencies/jbossews/webapps && \
     mkdir -p ${JWS_HOME}/app-root/runtime/dependencies/jbossews/webapps && \
-    ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime && \
+    ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
    # chmod +x ${JWS_HOME}/bin/setenv.sh
 
 WORKDIR ${HOME}/lae-home/app-root
