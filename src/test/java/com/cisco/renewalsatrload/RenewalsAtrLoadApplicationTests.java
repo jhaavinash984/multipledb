@@ -8,6 +8,7 @@ class RenewalsAtrLoadApplicationTests {
 
 	@Test
 	void contextLoads() {
+		System.out.println("Testing");
 	}
 
 }
