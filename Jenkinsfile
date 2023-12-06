@@ -126,7 +126,7 @@ pipeline {
                  * "Deploy All" stage as well, or you will do the deployments twice.
                  */
                 stage ('Deploy Dev') {
-                    when { branch "development/*" }
+                   // when { branch "development/*" }
                     steps {
                         triggerSpinnakerDevDeployment(environments: ["dev"])
                     }
