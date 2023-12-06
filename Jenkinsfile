@@ -125,16 +125,16 @@ pipeline {
                  * To use this, simply uncomment the blocks, and add the branch pattern (ANT style path glob). Make sure you remove the 
                  * "Deploy All" stage as well, or you will do the deployments twice.
                  */
-                /*stage ('Deploy Dev') {
-                    when { branch "feature/*" }
+                stage ('Deploy Dev') {
+                    when { branch "development/*" }
                     steps {
                         triggerSpinnakerDevDeployment(environments: ["dev"])
                     }
-                }*/
+                }
 
                 
 
-                stage ('Deploy All') {
+                /*stage ('Deploy All') {
                     steps {
                         
                         
@@ -151,7 +151,7 @@ pipeline {
                             
                         )                        
                     }
-                }
+                }*/
             }
         }
     }
