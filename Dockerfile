@@ -53,7 +53,7 @@ RUN chmod -R 777 ${JWS_HOME}/{bin,logs,infrascripts} && \
     rm -rf ${JWS_HOME}/webapps/manager
 EXPOSE 8080
 #COPY package/repo  ${HOME}/lae-home/app-root/runtime/repo
-COPY com/cisco/renewalsatrload/emptyrepo  ${HOME}/lae-home/app-root/runtime/repo
+COPY src/main/java/com/cisco/renewalsatrload/emptyrepo  ${HOME}/lae-home/app-root/runtime/repo
 RUN chmod -R 777  ${HOME}/lae-home/app-root/runtime/repo
 # Add Deployment WAR
 #COPY package/dependencies/jbossews/webapps/*.war  ${JWS_HOME}/webapps/
