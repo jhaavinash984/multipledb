@@ -29,7 +29,7 @@ ENV JAVA_OPTS_EXT="-Djboss.server.log.dir=$JWS_HOME/log/\$HOSTNAME -Djava.librar
     #TNS_ADMIN=/usr/lib/oracle/11.2/network/admin \
     PATH=$PATH:${JWS_HOME}
 
-COPY setenv.sh  ${JWS_HOME}/bin
+#COPY setenv.sh  ${JWS_HOME}/bin
 
 RUN mkdir ${HOME}/{data,lae-home} && \
     mkdir ${HOME}/lae-home/jbossews && \
@@ -39,7 +39,7 @@ RUN mkdir ${HOME}/{data,lae-home} && \
     mkdir -p ${JWS_HOME}/app-deployments/current/dependencies/jbossews/webapps && \
     mkdir -p ${JWS_HOME}/app-root/runtime/dependencies/jbossews/webapps && \
     ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime && \
-    chmod +x ${JWS_HOME}/bin/setenv.sh
+   # chmod +x ${JWS_HOME}/bin/setenv.sh
 
 WORKDIR ${HOME}/lae-home/app-root
 RUN ln -s runtime/repo repo
@@ -52,10 +52,12 @@ RUN chmod -R 777 ${JWS_HOME}/{bin,logs,infrascripts} && \
     chmod -R 775 /opt/AppDServerAgent/logs && \
     rm -rf ${JWS_HOME}/webapps/manager
 EXPOSE 8080
-COPY package/repo  ${HOME}/lae-home/app-root/runtime/repo
+#COPY package/repo  ${HOME}/lae-home/app-root/runtime/repo
+COPY com/cisco/renewalsatrload/emptyrepo  ${HOME}/lae-home/app-root/runtime/repo
 RUN chmod -R 777  ${HOME}/lae-home/app-root/runtime/repo
 # Add Deployment WAR
-COPY package/dependencies/jbossews/webapps/*.war  ${JWS_HOME}/webapps/
+#COPY package/dependencies/jbossews/webapps/*.war  ${JWS_HOME}/webapps/
+COPY target/*.war  ${JWS_HOME}/webapps/
 RUN echo "Building Application Image!"
 USER default
 # Main Command

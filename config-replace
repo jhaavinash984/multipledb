@@ -1,0 +1,58 @@
+#!/bin/bash
+cd /home/jboss/lae-home/app-root
+source $1
+cd -
+_str=''
+_vararr=()
+echo 'test1'
+echo '---------------------------------'
+IFS=$'\n'
+
+for line in $(env)
+do
+#echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
+line=$(echo "$line" | sed -e 's/^[ \t]*//')
+echo $line
+if [[ "$line" = \-* ]]
+then
+echo 'wrong java argument'
+else
+tmp1=$(echo $line | awk -F= '{print $1}')
+tmp2="export $tmp1='${!tmp1}'"
+echo $tmp2
+if [[ "$tmp1" =~ 'JAVA_OPTS' ]]
+then
+echo $tmp1 'IT IS JAVA OPTS'
+echo ${!tmp1}
+echo "export $tmp1='${!tmp1}'" >> /opt/webserver/bin/setenv.sh
+else
+grep -qF "$tmp1" /opt/webserver/bin/setenv.sh || echo "$tmp2" >> /opt/webserver/bin/setenv.sh
+fi
+fi
+#echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
+done
+
+echo '---------------------------------'
+
+for line in $(env | grep ^OPENSHIFT_ | awk -F '=' '{print $1}')
+do
+echo $line
+if [ "$_str" == "" ];then
+   _str=""'s|'"\${$line}"'|'\'\$$line\''|'" ;"
+  else
+  _str="$_str "'s|'"\${$line}"'|'\'\$$line\''|'" ;"
+fi
+done
+_sedreplacecmd=$(echo "$_str"|sed 's/.$//')
+
+if [[ $2 =~ 'context.xml' ]];then
+_sedreplacecmd="'$_sedreplacecmd g'"
+eval sed $_sedreplacecmd $2 > /opt/webserver/conf/context.xml
+fi
+
+if [[ $2 =~ 'server.xml' ]];then
+_sedreplacecmd="sed '$_sedreplacecmd ;s/address=\"\${OPENSHIFT_JBOSSEWS_IP}\"//;s/\${OPENSHIFT_JBOSSEWS_HTTP_PORT}/8080/g'"
+echo "$_sedreplacecmd"
+eval $_sedreplacecmd $2 > /opt/webserver/conf/server.xml
+sed -i -e 's@docBase="\(.*\)\/\(.*\)\.war"@docBase="/opt/webserver/webapps/\2.war"@' /opt/webserver/conf/server.xml
+fi

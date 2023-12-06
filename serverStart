@@ -1,0 +1,62 @@
+#! /bin/bash
+sed -i -e "s@-Djava.library.path=$_NATIVE_LIBDIR@\$JAVA_OPTS_EXT -Djava.library.path=$_NATIVE_LIBDIR@" /opt/webserver/bin/catalina.sh
+REPO="/home/jboss/lae-home/app-root/repo"
+HOMEDIR="/opt/webserver"
+#if [[ -f $REPO/genbinding* ]];then
+if ls $REPO/genbinding* &> /dev/null; then
+   echo '....................Copying JMS files.....................'
+   cp  $REPO/genbinding*.sh $HOMEDIR
+   cp  $REPO/createJNDISnapshot.class $HOMEDIR
+   cp -r $REPO/required_libs $HOMEDIR
+   cp $REPO/*.p12 $HOMEDIR
+   cp $REPO/*.p12 $HOMEDIR
+   sed -i 's@$OPENSHIFT_REPO_DIR\/genbindings\(.*\).sh@\/opt\/webserver\/genbindings\1.sh@g' /home/jboss/lae-home/app-root/repo/.openshift/action_hooks/pre_start_jbossews
+   sed -i 's@$OPENSHIFT_REPO_DIR\/genbindings\(.*\).sh@\/opt\/webserver\/genbindings\1.sh@g' /home/jboss/lae-home/app-root/repo/.openshift/action_hooks/pre_restart_jbossews
+   sed -i 's@$OPENSHIFT_REPO_DIR@\/opt\/webserver@g' /opt/webserver/genbindings*.sh
+
+   echo '....................Starting JMS genbinding script.....................'
+   export CLASSPATH="$HOMEDIR/required_libs/fscontext.jar:$HOMEDIR/required_libs/ldap.jar:$HOMEDIR/required_libs/providerutil.jar:$HOMEDIR/required_libs/tibjms.jar:$HOMEDIR/required_libs/jms.jar:$HOMEDIR/createJNDISnapshot.class"
+   export JAVA_OPTS_EXT="${JAVA_OPTS_EXT} -Dopenshift.repo.url=$HOMEDIR"
+   echo '-------------------------------------------------------------------'
+   echo $JAVA_OPTS_EXT
+   echo '-------------------------------------------------------------------'
+fi
+
+if [ -d "$REPO/.openshift" ];then
+if [ -f $REPO/.openshift/action_hooks/deploy_app ];then
+echo "----Start of deploy script----"
+bash $REPO/.openshift/action_hooks/deploy_app
+#cp -r /opt/webserver/app-root/runtime/dependencies/jbossews/webapps/sbpprovui.war /opt/webserver/webapps/
+cp -r /opt/webserver/app-root/runtime/dependencies/jbossews/webapps/*.war /opt/webserver/webapps/
+echo "----End of deploy script----"
+fi
+
+for _file in $REPO/.openshift/action_hooks/*;
+do
+  if [[ ${_file} =~ 'pre_start' ]];then
+  pre_start_file=$_file
+  fi
+done
+
+source ${pre_start_file}
+
+for _file in "$REPO/.openshift/config/context.xml" "$REPO/.openshift/config/server.xml";
+do
+  if [[ ${_file} =~ 'context.xml' ]];then
+  configcontextxml="${_file}"
+  fi
+  if [[ ${_file} =~ 'server.xml' ]];then
+  configserverxml=$_file
+  fi
+
+done
+
+_arr=(${configserverxml} ${configcontextxml} )
+for configFile in ${_arr[*]};do
+/opt/webserver/infrascripts/config-replace ${pre_start_file} ${configFile}
+done
+fi
+echo '**********************'
+echo 'STARTING TOMCAT SERVER........'
+exec /opt/webserver/bin/catalina.sh run
+echo '**********************'
