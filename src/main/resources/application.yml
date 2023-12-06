@@ -1,0 +1,25 @@
+server:
+  port : 8085
+spring:
+  datasource:
+    jdbcUrl : jdbc:oracle:thin:@//dbc-stg-2095-vip.cisco.com:1532/ESALESQA.CISCO.COM
+    username : OPTY_GATEWAY
+    password : ENC(+4uK0ReroFPQzUZgSjTVAxM2omPEFcqg)
+    driverClassName : oracle.jdbc.OracleDriver
+    hibernate:
+      dialect : org.hibernate.dialect.OracleDialect
+      hbm2ddl:
+        auto : none
+    jpa:
+      hibernate:
+        naming:
+          implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      properties:
+        hibernate:
+          globally_quoted_identifiers: true
+
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
