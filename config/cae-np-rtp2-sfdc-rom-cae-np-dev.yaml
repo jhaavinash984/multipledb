@@ -118,7 +118,6 @@ spec:
           emptyDir: {}
       restartPolicy: "Always"
       dnsPolicy: "ClusterFirst"
-  replicas: 2
   strategy:
     type: "RollingUpdate"
 ---
