@@ -2,7 +2,7 @@ kind: "Service"
 apiVersion: "v1"
 metadata:
   name: "renewals-atr-service-svc"
-  namespace: 'renewals-atr-service'
+  namespace: 'sfdc-rom-cae-np'
   labels:
     softwareId: '2e6908ba9a8187bec8d71c7cf3bd55192fe39442'
     softwareName: 'renewals-atr-services'
@@ -20,7 +20,7 @@ kind: "Deployment"
 apiVersion: "apps/v1"
 metadata:
   name: "renewals-atr-service"
-  namespace: 'renewals-atr-service'
+  namespace: 'sfdc-rom-cae-np'
   labels:
     softwareId: '2e6908ba9a8187bec8d71c7cf3bd55192fe39442'
     softwareName: 'renewals-atr-services'
@@ -33,7 +33,7 @@ spec:
   replicas: 1
   template:
     metadata:
-      namespace: 'renewals-atr-service'
+      namespace: 'sfdc-rom-cae-np'
       labels:
         name: "renewals-atr-service"
         environment: 'dev'
@@ -126,7 +126,7 @@ kind: "Route"
 apiVersion: "route.openshift.io/v1"
 metadata:
   name: "renewals-atr-service-live"
-  namespace: 'renewals-atr-service'
+  namespace: 'sfdc-rom-cae-np'
   labels:
      component: "renewals-atr-service"
 spec:
