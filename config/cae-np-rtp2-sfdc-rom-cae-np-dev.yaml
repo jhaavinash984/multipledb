@@ -85,7 +85,7 @@ spec:
               privileged: false
       imagePullSecrets:
         -
-          name: "it-cits-csas-crm-sfint-read-gen-pull-secret"
+          name: "sales-it-cdconsole-bot-pull-secret"
           #readinessProbe:
           #  httpGet:
           #    path: "/"
