@@ -1,25 +1,141 @@
-server:
-  port : 8085
-spring:
-  datasource:
-    jdbcUrl : jdbc:oracle:thin:@//dbc-stg-2095-vip.cisco.com:1532/ESALESQA.CISCO.COM
-    username : OPTY_GATEWAY
-    password : ENC(+4uK0ReroFPQzUZgSjTVAxM2omPEFcqg)
-    driverClassName : oracle.jdbc.OracleDriver
-    hibernate:
-      dialect : org.hibernate.dialect.OracleDialect
-      hbm2ddl:
-        auto : none
-    jpa:
-      hibernate:
-        naming:
-          implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
-          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      properties:
-        hibernate:
-          globally_quoted_identifiers: true
+kind: "Service"
+apiVersion: "v1"
+metadata:
+  name: "renewals-atr-service-svc"
+  namespace: 'renewals-atr-service'
+  labels:
+    softwareId: '2e6908ba9a8187bec8d71c7cf3bd55192fe39442'
+    softwareName: 'renewals-atr-services'
+spec:
+  ports:
+    - name: "web"
+      protocol: "TCP"
+      port: 8080
+  selector:
+    name: "renewals-atr-service"
+  type: "ClusterIP"
+  sessionAffinity: "None"
+---
+kind: "Deployment"
+apiVersion: "apps/v1"
+metadata:
+  name: "renewals-atr-service"
+  namespace: 'renewals-atr-service'
+  labels:
+    softwareId: '2e6908ba9a8187bec8d71c7cf3bd55192fe39442'
+    softwareName: 'renewals-atr-services'
+  annotations:
+    lae_uuid: "renewalsatrservices-ruw3yo3xdev"
+spec:
+  selector:
+    matchLabels:
+      name: "renewals-atr-service"
+  replicas: 1
+  template:
+    metadata:
+      namespace: 'renewals-atr-service'
+      labels:
+        name: "renewals-atr-service"
+        environment: 'dev'
+        softwareId: '2e6908ba9a8187bec8d71c7cf3bd55192fe39442'
+        softwareName: 'renewals-atr-services'
+      annotations:
+        app_version: "latest"
+    spec:
+      containers:
+        - name: "renewals-atr-service"
+          image: "containers.cisco.com/sales-it/renewals-atr-service"
+          ports:
+            - containerPort: 8080
+              protocol: "TCP"
+          env:
+            - name: "OPENSHIFT_APP_NAME"
+              value: "renewalsatrservicedev"
 
-jasypt:
-  encryptor:
-    algorithm: PBEWithMD5AndDES
-    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+            - name: JAVA_HEAP_MIN_MAX
+              value: "-Xms512m -Xmx1024m"
+
+
+            - name: hostname
+              valueFrom:
+               fieldRef:
+                apiVersion: v1
+                fieldPath: spec.nodeName
+
+          resources:
+            limits:
+              memory: 1.25Gi
+            requests:
+              cpu: .06
+          volumeMounts:
+            - name: podinfo
+              mountPath: /etc/metadata
+              readOnly: false
+            - mountPath: "/opt/webserver/logs"
+              name: "renewals-atr-service"
+            - name: "renewals-atr-service-app-logs"
+              mountPath: /home/jboss/lae-home/app-root/logs
+            - name: "renewals-atr-service-app-data"
+              mountPath: /home/jboss/data
+            - name: "renewals-atr-service-app-tmp"
+              mountPath: /tmp
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+              capabilities: {}
+              privileged: false
+      imagePullSecrets:
+        -
+          name: "it-cits-csas-crm-sfint-read-gen-pull-secret"
+          #readinessProbe:
+          #  httpGet:
+          #    path: "/"
+          #    port: 8080
+          #  initialDelaySeconds: 15
+          #  timeoutSeconds: 1
+          #livenessProbe:
+          #  exec:
+          #    command:
+          #      - "/bin/true"
+          #  initialDelaySeconds: 15
+          #  timeoutSeconds: 1
+      volumes:
+        - name: podinfo
+          downwardAPI:
+            items:
+              - path: "labels"
+                fieldRef:
+                  fieldPath: metadata.labels
+              - path: "annotations"
+                fieldRef:
+                  fieldPath: metadata.annotations
+        - name: "renewals-atr-service"
+          emptyDir: {}
+        - name: "renewals-atr-service-app-logs"
+          emptyDir: {}
+        - name: "renewals-atr-service-app-data"
+          emptyDir: {}
+        - name: "renewals-atr-service-app-tmp"
+          emptyDir: {}
+      restartPolicy: "Always"
+      dnsPolicy: "ClusterFirst"
+  replicas: 2
+  strategy:
+    type: "RollingUpdate"
+---
+kind: "Route"
+apiVersion: "route.openshift.io/v1"
+metadata:
+  name: "renewals-atr-service-live"
+  namespace: 'renewals-atr-service'
+  labels:
+     component: "renewals-atr-service"
+spec:
+   host: "renewalsatrservice-dev.cloudapps.cisco.com"
+   to:
+     kind: "Service"
+     name: "renewals-atr-service-svc"
+   port:
+     targetPort: "web"
+   tls:
+     insecureEdgeTerminationPolicy: None
+     termination: edge    
