@@ -1,7 +1,20 @@
 #! /bin/bash
-sed -i -e "s@-Djava.library.path=$_NATIVE_LIBDIR@\$JAVA_OPTS_EXT -Djava.library.path=$_NATIVE_LIBDIR@" /opt/webserver/bin/catalina.sh
-REPO="/home/jboss/lae-home/app-root/repo"
-HOMEDIR="/opt/webserver"
+#date Sep6th2018
+#date Nov13th2018
+sed -i -e "s@-Djava.library.path=$_NATIVE_LIBDIR@\$JAVA_OPTS_EXT -Djava.library.path=$_NATIVE_LIBDIR@" ${JWS_HOME}/bin/catalina.sh
+JAVA_OPTS_EXT="$JAVA_OPTS_EXT -Djboss.server.log.dir=$JWS_HOME/logs/ -Djava.library.path=/usr/lib/oracle/11.2/client64/lib"
+REPO="${HOME}/lae-home/app-root/repo"
+HOMEDIR="${JWS_HOME}"
+if [ -d "${HOME}/lae-home/app-root/runtime/repo" ];then
+        echo "----------copy repo to JWS_HOME-----------"
+        cp -r ${HOME}/lae-home/app-root/runtime/repo ${JWS_HOME}/app-root/
+        cp -r ${HOME}/lae-home/app-root/runtime ${JWS_HOME}/app-root/
+fi
+#if [ -f "${HOME}/lae-home/app-root/runtime/repo/.openshift/config/web.xml" ];then
+#        echo "----------copy web.xml to JWS_HOME/conf-----------"
+#	cp -r ${JWS_HOME}/conf/web.xml ${JWS_HOME}/conf/web_original.xml
+#       cp -r ${HOME}/lae-home/app-root/runtime/repo/.openshift/config/web.xml ${JWS_HOME}/conf/
+#fi
 #if [[ -f $REPO/genbinding* ]];then
 if ls $REPO/genbinding* &> /dev/null; then
    echo '....................Copying JMS files.....................'
@@ -10,9 +23,9 @@ if ls $REPO/genbinding* &> /dev/null; then
    cp -r $REPO/required_libs $HOMEDIR
    cp $REPO/*.p12 $HOMEDIR
    cp $REPO/*.p12 $HOMEDIR
-   sed -i 's@$OPENSHIFT_REPO_DIR\/genbindings\(.*\).sh@\/opt\/webserver\/genbindings\1.sh@g' /home/jboss/lae-home/app-root/repo/.openshift/action_hooks/pre_start_jbossews
-   sed -i 's@$OPENSHIFT_REPO_DIR\/genbindings\(.*\).sh@\/opt\/webserver\/genbindings\1.sh@g' /home/jboss/lae-home/app-root/repo/.openshift/action_hooks/pre_restart_jbossews
-   sed -i 's@$OPENSHIFT_REPO_DIR@\/opt\/webserver@g' /opt/webserver/genbindings*.sh
+   sed -i 's@$OPENSHIFT_REPO_DIR\/genbindings\(.*\).sh@\/opt\/webserver\/genbindings\1.sh@g' ${HOME}/lae-home/app-root/repo/.openshift/action_hooks/pre_start_jbossews
+   sed -i 's@$OPENSHIFT_REPO_DIR\/genbindings\(.*\).sh@\/opt\/webserver\/genbindings\1.sh@g' ${HOME}/lae-home/app-root/repo/.openshift/action_hooks/pre_restart_jbossews
+   sed -i 's@$OPENSHIFT_REPO_DIR@\/opt\/webserver@g' ${JWS_HOME}/genbindings*.sh
 
    echo '....................Starting JMS genbinding script.....................'
    export CLASSPATH="$HOMEDIR/required_libs/fscontext.jar:$HOMEDIR/required_libs/ldap.jar:$HOMEDIR/required_libs/providerutil.jar:$HOMEDIR/required_libs/tibjms.jar:$HOMEDIR/required_libs/jms.jar:$HOMEDIR/createJNDISnapshot.class"
@@ -20,43 +33,232 @@ if ls $REPO/genbinding* &> /dev/null; then
    echo '-------------------------------------------------------------------'
    echo $JAVA_OPTS_EXT
    echo '-------------------------------------------------------------------'
+   bash ${HOME}/lae-home/app-root/runtime/repo/genbindings-*.sh
 fi
 
 if [ -d "$REPO/.openshift" ];then
 if [ -f $REPO/.openshift/action_hooks/deploy_app ];then
 echo "----Start of deploy script----"
 bash $REPO/.openshift/action_hooks/deploy_app
-#cp -r /opt/webserver/app-root/runtime/dependencies/jbossews/webapps/sbpprovui.war /opt/webserver/webapps/
-cp -r /opt/webserver/app-root/runtime/dependencies/jbossews/webapps/*.war /opt/webserver/webapps/
+cp -r ${JWS_HOME}/app-root/runtime/dependencies/jbossews/webapps/*.war ${JWS_HOME}/webapps/
 echo "----End of deploy script----"
 fi
 
 for _file in $REPO/.openshift/action_hooks/*;
 do
   if [[ ${_file} =~ 'pre_start' ]];then
-  pre_start_file=$_file
+
+   pre_start_file=$_file
+
+   sed -i 's|-XX:HeapDumpOnOutOfMemoryError=.*.py | |g' ${pre_start_file}
+   sed -i 's|-XX:HeapDumpOnOutOfMemoryError=.*.py"|"|g' ${pre_start_file}
+   sed -i 's|-XX:HeapDumpPath=.* .*-|-XX:HeapDumpPath=${OPENSHIFT_LOG_DIR} -|g' ${pre_start_file}
+   sed -i 's|-XX:HeapDumpPath=/.*/"|-XX:HeapDumpPath=${OPENSHIFT_LOG_DIR}"|g' ${pre_start_file}
+   sed -i 's|-XX:HeapDumpPath=.*hprof"|-XX:HeapDumpPath=${OPENSHIFT_LOG_DIR}"|g' ${pre_start_file}
+   sed -i 's|-XX:HeapDumpPath=.*hprof"|-XX:HeapDumpPath=${OPENSHIFT_LOG_DIR}"|g' ${pre_start_file}
+   sed -i 's|-XX:HeapDumpPath=.*hprof "|-XX:HeapDumpPath=${OPENSHIFT_LOG_DIR}"|g' ${pre_start_file}
+   sed -i 's|-XX:MaxPermSize=256m"|-XX:MaxMetaspaceSize=512m"|g' ${pre_start_file}
+
+   source ${pre_start_file}
+
   fi
 done
 
-source ${pre_start_file}
 
-for _file in "$REPO/.openshift/config/context.xml" "$REPO/.openshift/config/server.xml";
+for _file in $REPO/.openshift/config/*;
 do
-  if [[ ${_file} =~ 'context.xml' ]];then
-  configcontextxml="${_file}"
+  if [[ ${_file} == "$REPO/.openshift/config/context.xml" ]];then
+   configcontextxml="${_file}"
   fi
-  if [[ ${_file} =~ 'server.xml' ]];then
+  if [[ ${_file} == "$REPO/.openshift/config/server.xml" ]];then
   configserverxml=$_file
   fi
 
 done
 
+
+configure_jvmmem()
+ {
+           flag=0
+           for line in $(env)
+           do
+              line=$(echo "$line" | sed -e 's/^[ \t]*//')
+                if [[ "$line" = \-* ]] ; then
+                  #echo 'wrong java argument'
+                   echo ""
+                else
+                  tmp1=$(echo $line | awk -F= '{print $1}')
+                  tmp2="export $tmp1='${!tmp1}'"
+                   # echo $tmp2
+                    if [[ $tmp1 == "JAVA_OPTS_EXT" ]] ; then
+                       jvmMinMem="$(echo  "${!tmp1}" | sed -n 's/.*\(-Xms\).*/\1/p')"
+                       jvmMaxMem="$(echo  "${!tmp1}" | sed -n 's/.*\(-Xmx\).*/\1/p')"
+                       echo "JAVA_OPTS"
+                        if [[ $jvmMinMem == "" ]] && [[ $jvmMaxMem == "" ]] ; then
+                         echo "flag - 1"
+                         flag=1
+                         export JAVA_OPTS_EXT="$JAVA_OPTS_EXT ${JAVA_HEAP_MIN_MAX}"
+                        else
+                          echo "flag 1"
+                          flag=1
+                        fi
+                     fi
+
+                fi
+           done
+           if [[ $flag == 0 ]] ; then
+              echo "flag 0"
+              export JAVA_OPTS_EXT="$JAVA_OPTS_EXT ${JAVA_HEAP_MIN_MAX}"
+           fi
+#	   export JAVA_OPTS_EXT="${JAVA_OPTS_EXT} -XX:MaxMetaspaceSize=512m -XX:+AggressiveOpts -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=40 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -Dorg.apache.jasper.runtime.BodyContentImpl.LIMIT_BUFFER=true -Dorg.apache.jasper.runtime.JspFactoryImpl.USE_POOL=false -Dorg.apache.tomcat.util.http.ServerCookie.ALLOW_EQUALS_IN_VALUE=true -XX:+DisableExplicitGC -Xss512k -XX:ParallelGCThreads=4 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${OPENSHIFT_LOG_DIR} -verbose:gc -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -XX:+UseGCLogFileRotation -XX:GCLogFileSize=5M -XX:NumberOfGCLogFiles=4 -Xloggc:${OPENSHIFT_LOG_DIR}gc.log -XX:+PrintTenuringDistribution"
+ }
+
+ echo "calling configure_jvmmem"
+ configure_jvmmem
+
+cd ${HOME}/lae-home/app-root
+cd -
+_str=''
+_vararr=()
+echo '---------------------------------'
+IFS=$'\n'
+
+configure_setenv()
+{
+
+for line in $(env)
+  do
+    #echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
+    line=$(echo "$line" | sed -e 's/^[ \t]*//')
+    #echo $line
+    if [[ "$line" = \-* ]]
+    then
+      echo 'wrong java argument'
+    else
+      tmp1=$(echo $line | awk -F= '{print $1}')
+      tmp2="export $tmp1='${!tmp1}'"
+      #echo $tmp2
+        if [[ "$tmp1" =~ 'JAVA_OPTS' ]]
+        then
+          #echo $tmp1 'IT IS JAVA OPTS'
+          #echo ${!tmp1}
+          echo "export $tmp1='${!tmp1}'" >> ${JWS_HOME}/bin/setenv.sh
+        else
+          grep -qF "$tmp1" ${JWS_HOME}/bin/setenv.sh || echo "$tmp2" >> ${JWS_HOME}/bin/setenv.sh
+    fi
+
+    if [[ "$tmp1" == "JAVA_OPTS_EXT" ]] ; then
+      #echo $tmp1 'IT IS JAVA OPTS EXT'
+      #echo ${!tmp1}
+      echo "export $tmp1='${!tmp1}'" >> ${JWS_HOME}/bin/setenv.sh
+    fi
+
+    fi
+    #echo '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
+  done
+
+}
+
+echo "calling configure_setenv"
+configure_setenv
+
+export_javaopts()
+{
+  for line in $(env | grep ^JAVA_OPTS_ | awk -F '=' '{print $1}')
+   do
+    tmp1=$(echo $line | awk -F= '{print $1}')
+    javaoptsext="$tmp1=${!tmp1}"
+    for line1 in $(echo "$javaoptsext" | sed s/" "/\\n/g )
+    do
+       if [[ "$line1" =~ "-DOPENSHIFT_" ]]; then
+           envvar=$(echo $line1 | sed 's|-D||g' )
+           export $envvar
+       fi
+    done
+   done
+}
+echo "calling export_javaopts"
+export_javaopts
+
+configure_xml()
+{
+  for line in $(env | grep ^OPENSHIFT_ | awk -F '=' '{print $1}')
+  do
+    echo $line
+    if [ "$_str" == "" ];then
+       _str=""'s|'"\${$line}"'|'\'\$$line\''|'" ;"
+    else
+      _str="$_str "'s|'"\${$line}"'|'\'\$$line\''|'" ;"
+    fi
+  done
+  
+  _sedreplacecmd=$(echo "$_str"|sed 's/.$//')
+
+  if [[ $2 =~ 'context.xml' ]];then
+    _sedreplacecmd="'$_sedreplacecmd g'"
+    eval sed $_sedreplacecmd $2 > ${JWS_HOME}/conf/context.xml
+  fi
+
+  if [[ $2 =~ 'server.xml' ]];then
+    _sedreplacecmd="sed '$_sedreplacecmd ;s/address=\"\${OPENSHIFT_JBOSSEWS_IP}\"//;s/\${OPENSHIFT_JBOSSEWS_HTTP_PORT}/8080/g'"
+    echo "$_sedreplacecmd"
+    eval $_sedreplacecmd $2 > ${JWS_HOME}/conf/server.xml
+    sed -i -e 's/"org.apache.catalina.valves.RemoteIpValve"/"org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="x-forwarded-for"/g' ${JWS_HOME}/conf/server.xml
+  # sed -i -e 's/\%h/%{X-Forwarded-For}i/g ${JWS_HOME}/conf/server.xml
+    sed -i -e 's@docBase="\(.*\)\/\(.*\)\.war"@docBase="${JWS_HOME}/webapps/\2.war"@' ${JWS_HOME}/conf/server.xml
+    sed -i -e 's/<Listener className=\"org.apache.catalina.core.JasperListener\" \/>/<!-- Listener className=\"org.apache.catalina.core.JasperListener\" \/ -->/g' ${JWS_HOME}/conf/server.xml
+  fi
+}
+
+echo "calling configure_xml"
 _arr=(${configserverxml} ${configcontextxml} )
 for configFile in ${_arr[*]};do
-/opt/webserver/infrascripts/config-replace ${pre_start_file} ${configFile}
+ echo "----------configFiles---------------"
+ echo "$configFile"
+ echo "----------PreStartFiles---------------"
+ echo "$pre_start_file"
+ if [ "${pre_start_file}" == "" ];then
+	configure_xml "" ${configFile}
+ else
+	configure_xml ${pre_start_file} ${configFile}
+ fi
+ #configure_xml ${pre_start_file}  ${configFile}
 done
+
+
+
 fi
-echo '**********************'
+
+configure_classpath()
+{
+   flag=0
+   for line in $(env)
+      do
+       line=$(echo "$line" | sed -e 's/^[ \t]*//')
+         if [[ "$line" = \-* ]] ; then
+             echo ''
+         else
+            tmp1=$(echo $line | awk -F= '{print $1}')
+            tmp2="export $tmp1='${!tmp1}'"
+               if [[ $tmp1 == "CUSTOM_CLASSPATH" ]] ; then
+                   #sed -i "$ a export CLASSPATH='${CUSTOM_CLASSPATH}'" ${JWS_HOME}/bin/setenv.sh
+                   sed -i 's|export CLASSPATH=.*|export CLASSPATH='${CUSTOM_CLASSPATH}'|g' ${JWS_HOME}/bin/setenv.sh
+                   flag=1
+               fi
+         fi
+    done
+     if [[ $flag == 0 ]] ; then
+       #sed -i "$ a export CLASSPATH='/usr/lib/oracle/11.2/client64/lib/ojdbc6.jar'" ${JWS_HOME}/bin/setenv.sh
+        sed -i 's|export CLASSPATH=.*|export CLASSPATH='/usr/lib/oracle/11.2/client64/lib/ojdbc6.jar'|g' ${JWS_HOME}/bin/setenv.sh
+     fi
+}
+echo "calling configure_classpath"
+configure_classpath
+
+#Added for cisco.life not picking up from JAVA_OPTS
+
+export CATALINA_OPTS="$CATALINA_OPTS $JAVA_OPTS_EXT"
+
 echo 'STARTING TOMCAT SERVER........'
-exec /opt/webserver/bin/catalina.sh run
+exec ${JWS_HOME}/bin/catalina.sh run
 echo '**********************'

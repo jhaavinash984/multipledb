@@ -1,0 +1,8 @@
+# ......................................................................
+# ldap.ora
+# ATS DBA standard config file for Oracle 11g OID
+# Created: 11/01/2011
+# ......................................................................
+DEFAULT_ADMIN_CONTEXT = "dc=cisco,dc=com"
+DIRECTORY_SERVERS= (ldap-ldprd:5000)
+DIRECTORY_SERVER_TYPE = OID

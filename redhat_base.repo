@@ -1,0 +1,8 @@
+[redhat_base]
+name=cisco internal mirror base channel
+baseurl=http://wwwin-repomgmt.cisco.com/dist/RedHat/7.2/en/os/$basearch
+enabled=Yes
+gpgcheck=1
+gpgkey=http://wwwin-repomgmt.cisco.com/yum/keys/RPM-GPG-KEY-redhat-release7 
+ http://wwwin-repomgmt.cisco.com/yum/keys/RPM-GPG-KEY-redhat-beta7
+priority=1
