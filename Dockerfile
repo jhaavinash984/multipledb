@@ -11,7 +11,7 @@ RUN  yum install -y /tmp/*.rpm && \
      echo /usr/lib/oracle/11.2/client64/lib > /etc/ld.so.conf.d/oracle-instantclient11.2.conf && \
      ldconfig
 COPY network /usr/lib/oracle/11.2/network
-ADD AppDServerAgent /opt/AppDServerAgent
+#ADD AppDServerAgent /opt/AppDServerAgent
 
 COPY remoteuservalve.jar TomEncrypt.jar log4j.properties ${JWS_HOME}/lib/
 #ENV JAVA_OPTS_EXT=" -Djboss.server.log.dir=$JWS_HOME/logs/ -Djava.library.path=/usr/lib/oracle/11.2/client64/lib" \
