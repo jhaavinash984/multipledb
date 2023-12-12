@@ -1,6 +1,7 @@
 #FROM containers.cisco.com/aws_staged/tomcat-7-jws3.1
 #FROM registry.access.redhat.com/jboss-webserver-5/webserver50-tomcat9-openshift 
-FROM containers.cisco.com/aws_managed/webserver56-openjdk8-tomcat9-openshift-rhel8
+#FROM containers.cisco.com/aws_managed/webserver56-openjdk8-tomcat9-openshift-rhel8
+FROM containers.cisco.com/aws_managed/webserver57-openjdk11-tomcat9-openshift-rhel8
 USER root
 
 ADD *.rpm /tmp/
