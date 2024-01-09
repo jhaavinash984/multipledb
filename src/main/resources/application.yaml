@@ -1,5 +1,5 @@
 server:
-  port : 8085
+  port : 8086
 spring:
   datasource:
     jdbcUrl : jdbc:oracle:thin:@//dbc-stg-2095-vip.cisco.com:1532/ESALESQA.CISCO.COM

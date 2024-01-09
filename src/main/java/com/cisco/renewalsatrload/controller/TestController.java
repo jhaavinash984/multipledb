@@ -30,11 +30,16 @@ public class TestController {
 	
 	/*@Autowired
 	private KafkaTemplate<String, Payload> kafkaTemplate;*/
-
-	@GetMapping(value="/test")
+	@GetMapping("/")
+	public String defaultTest(){
+		return "It Is Default";
+	}
+	@GetMapping("/test")
 	public String testing(){
 		return "It Is Testing";
 	}
+
+
 	
 	@GetMapping(value="/testDeatils")
 	public List<SyncOpptyHeaderModel> getDeatails(){
